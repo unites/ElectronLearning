@@ -1,28 +1,30 @@
-const { app, BrowserWindow } = require('electron')
+const electron = require('electron')
 
-function createWindow () {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  })
+const countdown = require('./countdown.js')
 
-  win.loadFile('site/index.html')
-  win.webContents.openDevTools()
-}
+const app = electron.app
+const BrowserWindow = electron.BrowserWindow
 
-app.whenReady().then(createWindow)
+let mainWindow
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+app.on('ready', _ => {
+    mainWindow = new BrowserWindow({
+        height: 800,
+        width: 1200,
+        webPreferences: {
+            nodeIntegration: true // required for require to work
+        }
+    })
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
+    mainWindow.webContents.openDevTools() // Open Dev tools by default
+
+    // console.log('file://' + __dirname + '/index.html')
+    mainWindow.loadURL('file://' + __dirname + '/index.html') // Necessary to properly use local paths
+
+    countdown()
+
+    mainWindow.on('closed', _ => {
+        console.log('Exited App!')
+        mainWindow = null
+    })
 })
